@@ -1,4 +1,4 @@
-'use strict';
+
 
 const express = require('express');
 const morgan = require('morgan');
@@ -8,12 +8,11 @@ app.use(morgan('common'));
 
 const googleApps = require('./playstore.js');
 
-app.use(express);
-
-app.get('./apps', (req, res) => {
+app.get('/apps', (req, res) => {
+  
   const sort = req.query.sort;
   const genres = req.query.genres;
-  const genreArr = ['Action', 'Puzzle', 'Strategy', 'Casual', 'Arcade', 'Card'];
+  
 
   if (sort) {
     if (!['rating', 'app'].includes(sort)) {
@@ -24,19 +23,22 @@ app.get('./apps', (req, res) => {
   }
 
   if (genres) {
-    if (!genreArr.includes(sort)) {
+    if (!['Action', 'Puzzle', 'Strategy', 'Casual', 'Arcade', 'Card'].includes(genres)) {
       return res
         .status(400)
         .send('Genre must be one of Action, Puzzle, Strategy, Casual, Arcade or Card.');
     }
   }
+  let genreResults = googleApps
+    .filter(googleApp =>
+      googleApp
+        .Genre
+    );
 
   let results = googleApps
     .filter(googleApp =>
       googleApp
         .App
-        .Rating
-        .Genre
     );
 
   if (sort) {
@@ -45,8 +47,14 @@ app.get('./apps', (req, res) => {
         return a[sort] > b[sort] ? 1 : a[sort] < b[sort] ? -1 : 0;
       });
   }
+  if (genres) {
+    genreResults
+      .sort((a, b) => {
+        return a[sort] > b[sort] ? 1 : a[sort] < b[sort] ? -1 : 0;
+      });
+  }
 
-  res.json(results);
+  return res.json(results).status(204);
 });
 
 app.listen(8000, () => {
