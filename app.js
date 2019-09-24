@@ -6,12 +6,11 @@ const app = express();
 
 app.use(morgan('common'));
 
-const googleApps = require('./playstore.js');
+const googleApps = require('./playstore');
 
 app.get('/apps', (req, res) => {
-  
-  const sort = req.query.sort;
-  const genres = req.query.genres;
+
+  const {genres, sort} = req.query;
   
 
   if (sort) {
